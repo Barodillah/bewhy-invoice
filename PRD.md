@@ -28,9 +28,31 @@ Untuk menjaga pelacakan yang rapi, berikut adalah usulan status dari awal hingga
 * **Convert to Invoice:** Tombol sekali klik untuk mengubah penawaran yang "Approved" menjadi Invoice tanpa input ulang.
 
 #### B. Manajemen Invoice
-* **Penomoran Otomatis:** Format custom (Contoh: `INV/BEWHY/2026/001`).
+* **Penomoran Otomatis:** Format custom.
 * **Due Date:** Pengaturan tanggal jatuh tempo pembayaran.
 * **Payment Status:** Penanda apakah tagihan sudah dibayar atau belum.
+
+#### **1. Format Penomoran Penawaran (Quotation)**
+Format yang disarankan:
+`[NOMOR_URUT]/QUO/BYD/[BULAN_ROMAWI]/[TAHUN]`
+
+* **[NOMOR_URUT]**: 3 atau 4 digit (contoh: 001, 002).
+* **QUO**: Kode dokumen untuk Quotation.
+* **BYI**: Inisial perusahaan (Bewhy Indonesia).
+* **[BULAN_ROMAWI]**: Bulan saat dokumen dibuat (I sampai XII).
+* **[TAHUN]**: Tahun berjalan (contoh: 2026).
+
+**Contoh:** `001/QUO/BYD/III/2026` (Dibuat pada bulan Maret 2026).
+
+#### **2. Format Penomoran Tagihan (Invoice)**
+Format yang disarankan:
+`[NOMOR_URUT]/INV/BYD/[BULAN_ROMAWI]/[TAHUN]`
+
+* **INV**: Kode dokumen untuk Invoice.
+
+**Contoh:** `001/INV/BYD/III/2026`.
+
+---
 
 #### C. Custom PDF Engine
 * **Template Branding:** Header dengan logo PT Bahasa Yoedhistira Digital, watermark, dan tanda tangan digital/stempel perusahaan.
