@@ -11,6 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/controllers/AuthController.php';
+require_once __DIR__ . '/controllers/UserController.php';
 require_once __DIR__ . '/controllers/ClientController.php';
 require_once __DIR__ . '/controllers/DocumentController.php';
 require_once __DIR__ . '/controllers/PaymentController.php';
@@ -31,11 +33,52 @@ $path = trim($path, '/');
 $segments = $path ? explode('/', $path) : [];
 $method = $_SERVER['REQUEST_METHOD'];
 
+// ===== AUTH MIDDLEWARE HELPER =====
+function authenticate() {
+    $auth = new AuthController();
+    $user = $auth->getAuthenticatedUser();
+    if (!$user) {
+        jsonResponse(['error' => 'Unauthorized. Silakan login terlebih dahulu.'], 401);
+    }
+    return $user;
+}
+
 // ===== ROUTING =====
+
+// /api/auth/request-otp
+// /api/auth/verify-otp
+// /api/auth/me
+// /api/auth/logout
+if (isset($segments[0]) && $segments[0] === 'auth') {
+    $action = $segments[1] ?? null;
+    $controller = new AuthController();
+
+    switch ($action) {
+        case 'request-otp':
+            if ($method === 'POST') $controller->requestOtp();
+            else jsonResponse(['error' => 'Method not allowed'], 405);
+            break;
+        case 'verify-otp':
+            if ($method === 'POST') $controller->verifyOtp();
+            else jsonResponse(['error' => 'Method not allowed'], 405);
+            break;
+        case 'me':
+            if ($method === 'GET') $controller->me();
+            else jsonResponse(['error' => 'Method not allowed'], 405);
+            break;
+        case 'logout':
+            if ($method === 'POST') $controller->logout();
+            else jsonResponse(['error' => 'Method not allowed'], 405);
+            break;
+        default:
+            jsonResponse(['error' => 'Auth endpoint not found'], 404);
+    }
+}
 
 // /api/clients
 // /api/clients/{id}
-if (isset($segments[0]) && $segments[0] === 'clients') {
+elseif (isset($segments[0]) && $segments[0] === 'clients') {
+    authenticate(); // Require login
     $id = $segments[1] ?? null;
     $controller = new ClientController();
 
@@ -64,6 +107,7 @@ if (isset($segments[0]) && $segments[0] === 'clients') {
 // /api/documents/{id}/status
 // /api/documents/{id}/payments
 elseif (isset($segments[0]) && $segments[0] === 'documents') {
+    authenticate(); // Require login
     $id = $segments[1] ?? null;
     $action = $segments[2] ?? null;
 
@@ -97,8 +141,42 @@ elseif (isset($segments[0]) && $segments[0] === 'documents') {
     }
 }
 
+// /api/users (Admin only)
+// /api/users/{id}
+elseif (isset($segments[0]) && $segments[0] === 'users') {
+    $currentUser = authenticate();
+    if ($currentUser['role'] !== 'admin') {
+        jsonResponse(['error' => 'Forbidden. Hanya admin yang bisa mengakses.'], 403);
+    }
+    $id = $segments[1] ?? null;
+    $controller = new UserController();
+
+    switch ($method) {
+        case 'GET':
+            $controller->index();
+            break;
+        case 'POST':
+            $controller->store();
+            break;
+        case 'PUT':
+            if ($id) $controller->update($id);
+            else jsonResponse(['error' => 'ID required'], 400);
+            break;
+        case 'DELETE':
+            if ($id) $controller->destroy($id);
+            else jsonResponse(['error' => 'ID required'], 400);
+            break;
+        default:
+            jsonResponse(['error' => 'Method not allowed'], 405);
+    }
+}
+
 else {
     jsonResponse(['message' => 'Bewhy Invoice API v1.0', 'endpoints' => [
+        'POST /api/auth/request-otp',
+        'POST /api/auth/verify-otp',
+        'GET  /api/auth/me',
+        'POST /api/auth/logout',
         'GET /api/clients',
         'POST /api/clients',
         'PUT /api/clients/{id}',
@@ -109,5 +187,10 @@ else {
         'PUT /api/documents/{id}',
         'PATCH /api/documents/{id}/status',
         'POST /api/documents/{id}/payments',
+        'GET /api/users (admin)',
+        'POST /api/users (admin)',
+        'PUT /api/users/{id} (admin)',
+        'DELETE /api/users/{id} (admin)',
     ]]);
 }
+

@@ -1,10 +1,25 @@
 const API_BASE = '/api';
 
 async function request(url, options = {}) {
+  const token = localStorage.getItem('auth_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(`${API_BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   });
+
+  // Handle 401 — redirect to login
+  if (res.status === 401) {
+    localStorage.removeItem('auth_token');
+    window.location.href = '/login';
+    throw new Error('Session expired');
+  }
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'API error');
   return data;

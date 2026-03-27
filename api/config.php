@@ -1,9 +1,9 @@
 <?php
 // Database Configuration
-define('DB_HOST', '153.92.15.23');
-define('DB_NAME', 'u444914729_invoice');
-define('DB_USER', 'u444914729_invoice');
-define('DB_PASS', 'Alobas.22');
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'invoice');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 function getDB()
 {

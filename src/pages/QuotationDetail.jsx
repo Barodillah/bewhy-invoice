@@ -332,15 +332,17 @@ export default function QuotationDetail() {
                 <span>{t.laborCosts}</span>
                 <span className="font-medium">{formatCurrency(quotation.laborCostTotal || 0)}</span>
               </div>
-              <div className="flex justify-between text-sm text-slate-600">
-                <span>{t.totalBeforeDiscount}</span>
-                <span className="font-medium">{formatCurrency(quotation.subTotal)}</span>
-              </div>
               {quotation.discount > 0 && (
-                <div className="flex justify-between text-sm text-red-500">
-                  <span>{t.discount}</span>
-                  <span className="font-medium">-{formatCurrency(quotation.discount)}</span>
-                </div>
+                <>
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span>{t.totalBeforeDiscount}</span>
+                    <span className="font-medium">{formatCurrency(quotation.subTotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-red-500">
+                    <span>{t.discount}</span>
+                    <span className="font-medium">-{formatCurrency(quotation.discount)}</span>
+                  </div>
+                </>
               )}
               <div className="pt-4 border-t border-slate-200 flex justify-between text-lg font-bold text-slate-900">
                 <span>{t.grandTotal}</span>
